@@ -5,62 +5,64 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BasicExample.Controllers
 {
-    [Route("api/[controller]")]
-    public class PeopleController : Controller
-    {
-        private readonly IEnumerable<PersonDto> _people;
-        public PeopleController()
-        {
-            _people = new List<PersonDto>
-            {
-                new PersonDto { Id = 1, Name = "Fanie", Email = "fanie@reynders.co" },
-                new PersonDto { Id = 2, Name = "Maarten", Email = "maarten@example.com" },
-                new PersonDto { Id = 3, Name = "Marcel", Email = "marcel@example.com" }
-            };
-        }
+	[Route("api/[controller]")]
+	public class PeopleController : Controller
+	{
+		private readonly IEnumerable<PersonDto> _people;
 
-        private PersonDto GetPerson(int id)
-        {
-            return _people.Single(p => p.Id == id);
-        }
-        [HttpGet(Name = "get-people")]
-        public IActionResult Get()
-        {
-            return Ok(_people);
-        }
+		public PeopleController()
+		{
+			_people = new List<PersonDto>
+			{
+				new PersonDto { Id = 1, Name = "Fanie", Email = "fanie@reynders.co" },
+				new PersonDto { Id = 2, Name = "Maarten", Email = "maarten@example.com" },
+				new PersonDto { Id = 3, Name = "Marcel", Email = "marcel@example.com" }
+			};
+		}
 
-        [HttpGet("{id}", Name = "get-person")]
-        public IActionResult Get(int id)
-        {
-            var person = GetPerson(id);
-            return Ok(person);
-        }
+		private PersonDto GetPerson(int id)
+		{
+			return _people.Single(p => p.Id == id);
+		}
 
-        [HttpPost(Name = "create-person")]
-        public IActionResult Post([FromBody]PersonDto person)
-        {
-            person.Id = _people.Count() + 1;
-            ((List<PersonDto>)_people).Add(person);
-            return Ok();
-        }
+		[HttpGet(Name = "get-people")]
+		public IActionResult Get()
+		{
+			return Ok(_people);
+		}
 
-        [HttpPut("{id}", Name = "update-person")]
-        public IActionResult Put(int id, [FromBody]PersonDto person)
-        {
-            var oldPerson = GetPerson(id);
+		[HttpGet("{id}", Name = "get-person")]
+		public IActionResult Get(int id)
+		{
+			var person = GetPerson(id);
+			return Ok(person);
+		}
 
-            oldPerson.Name = person.Name;
-            oldPerson.Email = person.Email;
-            return NoContent();
-        }
+		[HttpPost(Name = "create-person")]
+		public IActionResult Post([FromBody] PersonDto person)
+		{
+			person.Id = _people.Count() + 1;
+			((List<PersonDto>) _people).Add(person);
+			return Ok();
+		}
 
-        [HttpDelete("{id}", Name = "delete-person")]
-        public IActionResult Delete(int id)
-        {
-            var person = GetPerson(id);
+		[HttpPut("{id}", Name = "update-person")]
+		public IActionResult Put(int id, [FromBody] PersonDto person)
+		{
+			var oldPerson = GetPerson(id);
 
-            ((List<PersonDto>)_people).Remove(person);
-            return Ok();
-        }
-    }
+			oldPerson.Name = person.Name;
+			oldPerson.Email = person.Email;
+			return NoContent();
+		}
+
+		[HttpDelete("{id}", Name = "delete-person")]
+		public IActionResult Delete(int id)
+		{
+			var person = GetPerson(id);
+
+			((List<PersonDto>) _people).Remove(person);
+			return Ok();
+		}
+	}
 }

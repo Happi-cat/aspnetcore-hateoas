@@ -11,8 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
 {
 	internal class JsonHateoasMvcOptionsSetup : IConfigureOptions<MvcOptions>
 	{
-		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly ArrayPool<char> _charPool;
+		private readonly JsonSerializerSettings _jsonSerializerSettings;
 
 		public JsonHateoasMvcOptionsSetup(IOptions<MvcJsonOptions> jsonOptions, ArrayPool<char> charPool)
 		{
