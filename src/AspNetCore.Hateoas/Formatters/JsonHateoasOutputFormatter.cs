@@ -127,7 +127,7 @@ namespace AspNetCore.Hateoas.Formatters
 			{
 				var resourceOptions = _options.Requirements
 					.Where(r => r.ResourceType == type)
-					.Where(r => r.IsLinkAllowed(resource.Data));
+					.Where(r => isEnumerable || r.IsLinkAllowed(resource.Data));
 
 				foreach (var option in resourceOptions)
 				{
