@@ -1,12 +1,15 @@
 ﻿using System;
+using Microsoft.AspNetCore.Routing;
 
 namespace AspNetCore.Hateoas.Infrastructure
 {
     public interface ILinksRequirement
     {
         string Name { get; }
-        object RouteValues(object input);
         Type ResourceType { get; }
+
+        RouteValueDictionary GetRouteValues(object input);
+        bool IsEnabled(object input);
     }
 }
 

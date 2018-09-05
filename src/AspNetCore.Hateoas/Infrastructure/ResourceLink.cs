@@ -5,20 +5,30 @@ namespace AspNetCore.Hateoas.Infrastructure
 {
     public class ResourceLink<T> : ILinksRequirement
     {
-        public ResourceLink(Type resourceType, string name, Func<T, RouteValueDictionary> values)
+        private readonly Func<T, bool> _isMatch;
+        private readonly Func<T, RouteValueDictionary> _values;
+
+        public ResourceLink(string name, Func<T, RouteValueDictionary> values, Func<T, bool> isMatch = null)
         {
-            this.ResourceType = resourceType;
+            _isMatch = isMatch;
+            this.ResourceType = typeof(T);
             this.Name = name;
-            this.Values = values;
+            this._values = values;
         }
 
         public string Name { get; }
-        public Func<T, RouteValueDictionary> Values { get; }
+
         public Type ResourceType { get; }
 
-        public object RouteValues(object input)
+        public RouteValueDictionary GetRouteValues(object input)
         {
-            return Values((T)input);
+            return _values((T)input);
         }
+
+        public bool IsEnabled(object input)
+        {
+            return _isMatch == null || _isMatch((T)input);
+        }
+
     }
 }

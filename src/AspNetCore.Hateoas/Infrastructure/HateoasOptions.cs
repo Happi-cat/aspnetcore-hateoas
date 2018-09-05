@@ -6,38 +6,54 @@ namespace AspNetCore.Hateoas.Infrastructure
 {
     public class HateoasOptions
     {
-        private readonly List<ILinksRequirement> links;
+        private readonly List<ILinksRequirement> _links;
 
         public HateoasOptions()
         {
-            links = new List<ILinksRequirement>();
-
+            _links = new List<ILinksRequirement>();
         }
-        public IReadOnlyList<ILinksRequirement> Requirements
+
+        public IReadOnlyList<ILinksRequirement> Requirements => _links.AsReadOnly();
+
+        public HateoasOptions AddLink<T>(string routeName) where T : class
         {
-            get
-            {
-                return links.AsReadOnly();
-            }
+            return AddLink<T>(routeName, null);
         }
 
         public HateoasOptions AddLink<T>(string routeName, Func<T, object> values) where T : class
         {
-            Func<T, RouteValueDictionary> getRouteValues = r => new RouteValueDictionary();
-            if (values != null)
-            {
-                getRouteValues = r => new RouteValueDictionary(values(r));
-            }
-                
-            var req = new ResourceLink<T>(typeof(T), routeName, getRouteValues);
+            return Add(new ResourceLink<T>(routeName, WrapRouteValuesSelector(values)));
+        }
 
-            links.Add(req);
+        public HateoasOptions AddLinkWhen<T>(string routeName, Func<T, bool> predicate)
+            where T : class
+        {
+            return AddLinkWhen<T>(routeName, predicate, null);
+        }
+
+        public HateoasOptions AddLinkWhen<T>(string routeName,
+            Func<T, bool> predicate,
+            Func<T, object> routeValuesSelector)
+            where T : class
+        {
+            return Add(new ResourceLink<T>(
+                routeName,
+                WrapRouteValuesSelector(routeValuesSelector),
+                predicate
+            ));
+        }
+
+        private HateoasOptions Add(ILinksRequirement req)
+        {
+            _links.Add(req);
+
             return this;
         }
 
-        public HateoasOptions AddLink<T>(string routeName) where T : class
+        private Func<T, RouteValueDictionary> WrapRouteValuesSelector<T>(Func<T, object> routeValuesSelector)
         {
-            return AddLink<T>(routeName, t => null);
+            if (routeValuesSelector == null) return r => new RouteValueDictionary();
+            return r => new RouteValueDictionary(routeValuesSelector(r));
         }
     }
 
