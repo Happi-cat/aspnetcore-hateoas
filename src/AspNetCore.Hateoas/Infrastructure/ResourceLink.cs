@@ -11,9 +11,9 @@ namespace AspNetCore.Hateoas.Infrastructure
         public ResourceLink(string name, Func<T, RouteValueDictionary> values, Func<T, bool> isMatch = null)
         {
             _isMatch = isMatch;
-            this.ResourceType = typeof(T);
-            this.Name = name;
-            this._values = values;
+            ResourceType = typeof(T);
+            Name = name;
+            _values = values;
         }
 
         public string Name { get; }
@@ -29,6 +29,5 @@ namespace AspNetCore.Hateoas.Infrastructure
         {
             return _isMatch == null || _isMatch((T)input);
         }
-
     }
 }

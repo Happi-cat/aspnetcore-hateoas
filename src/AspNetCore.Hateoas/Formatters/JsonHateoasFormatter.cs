@@ -41,11 +41,7 @@ namespace AspNetCore.Hateoas.Formatters
 
         public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
         {
-            var contextAccessor = GetService<IActionContextAccessor>(context);
-            var options = GetService<IOptions<HateoasOptions>>(context).Value;
-            var actionDescriptorProvider = GetService<IActionDescriptorCollectionProvider>(context);
-            var urlHelper = GetService<IUrlHelperFactory>(context)
-                .GetUrlHelper(contextAccessor.ActionContext);
+
             var response = context.HttpContext.Response;
 
             switch (context.Object)
@@ -56,11 +52,20 @@ namespace AspNetCore.Hateoas.Formatters
                     return WriteResourceAsync(existingResource, response);
                 default:
                     return WriteResourceAsync(
-                        new ResourceFactory(options, actionDescriptorProvider, urlHelper)
-                            .CreateResource(context, context.Object),
+                        CreateResourceFactory(context).CreateResource(context, context.Object),
                         response
                     );
             }
+        }
+
+        private ResourceFactory CreateResourceFactory(OutputFormatterWriteContext context)
+        {
+            var options = GetService<IOptions<HateoasOptions>>(context).Value;
+            var actionDescriptorProvider = GetService<IActionDescriptorCollectionProvider>(context);
+            var urlHelper = GetService<IUrlHelperFactory>(context)
+                .GetUrlHelper(GetService<IActionContextAccessor>(context).ActionContext);
+
+            return new ResourceFactory(options, actionDescriptorProvider, urlHelper);
         }
 
         private Task WriteErrorAsync(SerializableError error, HttpResponse response)

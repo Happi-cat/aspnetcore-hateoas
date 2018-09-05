@@ -8,10 +8,11 @@ namespace BasicExample.Controllers
     [Route("api/[controller]")]
     public class PeopleController : Controller
     {
-        private readonly IEnumerable<PersonDto> people;
+        private readonly IEnumerable<PersonDto> _people;
         public PeopleController()
         {
-            people = new List<PersonDto>() {
+            _people = new List<PersonDto>
+            {
                 new PersonDto { Id = 1, Name = "Fanie", Email = "fanie@reynders.co" },
                 new PersonDto { Id = 2, Name = "Maarten", Email = "maarten@example.com" },
                 new PersonDto { Id = 3, Name = "Marcel", Email = "marcel@example.com" }
@@ -20,12 +21,12 @@ namespace BasicExample.Controllers
 
         private PersonDto GetPerson(int id)
         {
-            return people.Single(p => p.Id == id);
+            return _people.Single(p => p.Id == id);
         }
         [HttpGet(Name = "get-people")]
         public IActionResult Get()
         {
-            return Ok(people);
+            return Ok(_people);
         }
 
         [HttpGet("{id}", Name = "get-person")]
@@ -38,8 +39,8 @@ namespace BasicExample.Controllers
         [HttpPost(Name = "create-person")]
         public IActionResult Post([FromBody]PersonDto person)
         {
-            person.Id = people.Count() + 1;
-            ((List<PersonDto>)people).Add(person);
+            person.Id = _people.Count() + 1;
+            ((List<PersonDto>)_people).Add(person);
             return Ok();
         }
 
@@ -52,13 +53,13 @@ namespace BasicExample.Controllers
             oldPerson.Email = person.Email;
             return NoContent();
         }
-        
+
         [HttpDelete("{id}", Name = "delete-person")]
         public IActionResult Delete(int id)
         {
             var person = GetPerson(id);
 
-            ((List<PersonDto>)people).Remove(person);
+            ((List<PersonDto>)_people).Remove(person);
             return Ok();
         }
     }

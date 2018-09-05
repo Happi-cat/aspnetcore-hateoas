@@ -1,14 +1,16 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace AspNetCore.Hateoas.Models
 {
     public abstract class Resource
     {
-        public Resource(object data)
+        protected Resource(object data)
         {
-            this.Data = data;
+            Data = data;
         }
+
         [JsonProperty("data")]
         public virtual object Data { get; }
 

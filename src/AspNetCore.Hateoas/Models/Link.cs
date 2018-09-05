@@ -1,16 +1,23 @@
-﻿namespace AspNetCore.Hateoas.Models
+﻿using Newtonsoft.Json;
+
+namespace AspNetCore.Hateoas.Models
 {
     public class Link
     {
         public Link(string rel, string href, string method)
         {
-            this.Rel = rel;
-            this.Href = href;
-            this.Method = method;
+            Rel = rel;
+            Href = href;
+            Method = method;
         }
-        public string Href { get; }
-        public string Rel { get; }
-        public string Method { get; }
 
+        [JsonProperty(Order = 1)]
+        public string Href { get; private set; }
+
+        [JsonProperty(Order = 0)]
+        public string Rel { get; private set; }
+
+        [JsonProperty(Order = 2)]
+        public string Method { get; private set; }
     }
 }
