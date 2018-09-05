@@ -20,13 +20,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
 			builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 			builder.Services.TryAdd(ServiceDescriptor
-				.Singleton(serviceProvider => new JsonHateoasFormatter(
+				.Singleton(serviceProvider => new JsonHateoasOutputFormatter(
 					serviceProvider.GetRequiredService<IOptions<MvcJsonOptions>>().Value.SerializerSettings,
 					serviceProvider.GetRequiredService<ArrayPool<char>>()))
 			);
 
 			builder.Services.TryAddEnumerable(ServiceDescriptor
-				.Transient<IConfigureOptions<MvcOptions>, MvcJsonHateoasMvcOptionsSetup>());
+				.Transient<IConfigureOptions<MvcOptions>, JsonHateoasMvcOptionsSetup>());
 			return builder;
 		}
 	}

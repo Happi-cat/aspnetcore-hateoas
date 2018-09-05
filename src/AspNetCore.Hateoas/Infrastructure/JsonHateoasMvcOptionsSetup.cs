@@ -9,12 +9,12 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-	public class MvcJsonHateoasMvcOptionsSetup : IConfigureOptions<MvcOptions>
+	internal class JsonHateoasMvcOptionsSetup : IConfigureOptions<MvcOptions>
 	{
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly ArrayPool<char> _charPool;
 
-		public MvcJsonHateoasMvcOptionsSetup(IOptions<MvcJsonOptions> jsonOptions, ArrayPool<char> charPool)
+		public JsonHateoasMvcOptionsSetup(IOptions<MvcJsonOptions> jsonOptions, ArrayPool<char> charPool)
 		{
 			if (jsonOptions == null)
 				throw new ArgumentNullException(nameof(jsonOptions));
@@ -25,10 +25,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
 		public void Configure(MvcOptions options)
 		{
-			options.OutputFormatters.Add(new JsonHateoasFormatter(_jsonSerializerSettings, _charPool));
+			options.OutputFormatters.Add(new JsonHateoasOutputFormatter(_jsonSerializerSettings, _charPool));
 			options.FormatterMappings.SetMediaTypeMappingForFormat(
 				"json+hateoas",
-				MediaTypeHeaderValue.Parse((StringSegment) "application/json+hateoas")
+				MediaTypeHeaderValue.Parse((StringSegment) JsonHateoasOutputFormatter.ApplicationJsonHateoas)
 			);
 		}
 	}

@@ -19,11 +19,11 @@ using System.Threading.Tasks;
 
 namespace AspNetCore.Hateoas.Formatters
 {
-    public class JsonHateoasFormatter : JsonOutputFormatter
+    public class JsonHateoasOutputFormatter : JsonOutputFormatter
     {
-        private const string ApplicationJsonHateoas = "application/json+hateoas";
+        public const string ApplicationJsonHateoas = "application/json+hateoas";
 
-        public JsonHateoasFormatter(JsonSerializerSettings serializerSettings, ArrayPool<char> charPool)
+        public JsonHateoasOutputFormatter(JsonSerializerSettings serializerSettings, ArrayPool<char> charPool)
             : base(serializerSettings, charPool)
         {
             SupportedMediaTypes.Clear();
