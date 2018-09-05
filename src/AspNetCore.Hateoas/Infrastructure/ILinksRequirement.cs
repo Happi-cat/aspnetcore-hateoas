@@ -9,6 +9,6 @@ namespace AspNetCore.Hateoas.Infrastructure
 		Type ResourceType { get; }
 
 		RouteValueDictionary GetRouteValues(object input);
-		bool IsEnabled(object input);
+		bool IsLinkAllowed(object input);
 	}
 }
