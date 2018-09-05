@@ -10,28 +10,27 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Hateoas.Formatters
 {
-    public class JsonHateoasFormatter : OutputFormatter
+    public class JsonHateoasFormatter : JsonOutputFormatter
     {
         private const string ApplicationJsonHateoas = "application/json+hateoas";
-        private const string ApplicationJson = "application/json";
 
-        private readonly JsonSerializerSettings _serializerSettings;
-
-        public JsonHateoasFormatter()
+        public JsonHateoasFormatter(JsonSerializerSettings serializerSettings, ArrayPool<char> charPool)
+            : base(serializerSettings, charPool)
         {
+            SupportedMediaTypes.Clear();
             SupportedMediaTypes.Add(ApplicationJsonHateoas);
 
-            _serializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore
-            };
+            SupportedEncodings.Add(Encoding.UTF8);
+            SupportedEncodings.Add(Encoding.Unicode);
         }
 
         private T GetService<T>(OutputFormatterWriteContext context)
@@ -39,22 +38,30 @@ namespace AspNetCore.Hateoas.Formatters
             return (T)context.HttpContext.RequestServices.GetService(typeof(T));
         }
 
-        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
+        /// <inheritdoc />
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof (context));
+            if (selectedEncoding == null)
+                throw new ArgumentNullException(nameof (selectedEncoding));
+            using (TextWriter writer = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding))
+            {
+                WriteObject(writer, GetObjectToFormat(context));
+                await writer.FlushAsync();
+            }
+        }
 
-            var response = context.HttpContext.Response;
-
+        private object GetObjectToFormat(OutputFormatterWriteContext context)
+        {
             switch (context.Object)
             {
                 case SerializableError error:
-                    return WriteErrorAsync(error, response);
+                    return error;
                 case Resource existingResource:
-                    return WriteResourceAsync(existingResource, response);
+                    return existingResource;
                 default:
-                    return WriteResourceAsync(
-                        CreateResourceFactory(context).CreateResource(context, context.Object),
-                        response
-                    );
+                    return CreateResourceFactory(context).CreateResource(context, context.Object);
             }
         }
 
@@ -66,20 +73,6 @@ namespace AspNetCore.Hateoas.Formatters
                 .GetUrlHelper(GetService<IActionContextAccessor>(context).ActionContext);
 
             return new ResourceFactory(options, actionDescriptorProvider, urlHelper);
-        }
-
-        private Task WriteErrorAsync(SerializableError error, HttpResponse response)
-        {
-            var errorOutput = JsonConvert.SerializeObject(error, _serializerSettings);
-            response.ContentType = ApplicationJson;
-            return response.WriteAsync(errorOutput);
-        }
-
-        private Task WriteResourceAsync(Resource resource, HttpResponse response)
-        {
-            var output = JsonConvert.SerializeObject(resource, _serializerSettings);
-            response.ContentType = ApplicationJsonHateoas;
-            return response.WriteAsync(output);
         }
 
         private class ResourceFactory
