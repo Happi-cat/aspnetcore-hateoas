@@ -30,11 +30,6 @@ namespace AspNetCore.Hateoas.Formatters
 			SupportedEncodings.Add(Encoding.Unicode);
 		}
 
-		private T GetService<T>(OutputFormatterWriteContext context)
-		{
-			return (T) context.HttpContext.RequestServices.GetService(typeof(T));
-		}
-
 		/// <inheritdoc />
 		public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context,
 			Encoding selectedEncoding)
@@ -43,11 +38,17 @@ namespace AspNetCore.Hateoas.Formatters
 				throw new ArgumentNullException(nameof(context));
 			if (selectedEncoding == null)
 				throw new ArgumentNullException(nameof(selectedEncoding));
+
 			using (var writer = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding))
 			{
 				WriteObject(writer, GetObjectToFormat(context));
 				await writer.FlushAsync();
 			}
+		}
+
+		private T GetService<T>(OutputFormatterWriteContext context)
+		{
+			return (T) context.HttpContext.RequestServices.GetService(typeof(T));
 		}
 
 		private object GetObjectToFormat(OutputFormatterWriteContext context)
@@ -114,7 +115,6 @@ namespace AspNetCore.Hateoas.Formatters
 
 				return AppendLinksToResource(type, resource, true);
 			}
-
 
 			private Link CreateLink(ILinksRequirement option, string method, object routeValues)
 			{
