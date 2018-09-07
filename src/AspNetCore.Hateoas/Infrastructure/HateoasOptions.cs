@@ -15,25 +15,15 @@ namespace AspNetCore.Hateoas.Infrastructure
 
 		public IReadOnlyList<ILinksRequirement> Requirements => _links.AsReadOnly();
 
-		public HateoasOptions AddLink<T>(string routeName) where T : class
-		{
-			return AddLink<T>(routeName, null);
-		}
-
-		public HateoasOptions AddLink<T>(string routeName, Func<T, object> values) where T : class
+		public HateoasOptions AddLink<T>(string routeName, Func<T, object> values = null)
+			where T : class
 		{
 			return Add(new ResourceLink<T>(routeName, WrapRouteValuesSelector(values)));
 		}
 
-		public HateoasOptions AddLinkWhen<T>(string routeName, Func<T, bool> predicate)
-			where T : class
-		{
-			return AddLinkWhen(routeName, predicate, null);
-		}
-
 		public HateoasOptions AddLinkWhen<T>(string routeName,
 			Func<T, bool> predicate,
-			Func<T, object> routeValuesSelector)
+			Func<T, object> routeValuesSelector = null)
 			where T : class
 		{
 			return Add(new ResourceLink<T>(
